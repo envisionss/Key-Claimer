@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claim Key</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1f1f1f;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #333;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 400px;
+      max-width: 90%;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 1em;
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #555;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+      outline: none;
+      margin-bottom: 10px; /* Added margin bottom */
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      margin-top: 10px; /* Added margin top */
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #statusMessage {
+      font-style: italic;
+      color: #f44336; /* Red color for error message */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Claim Your Key</h1>
+    <form id="claimForm">
+      <label for="username">Enter Your Discord Username:</label>
+      <input type="text" id="username" name="username" placeholder="Your Discord Username" required>
+      <button type="submit" id="claimButton">Claim Key</button>
+    </form>
+    <p id="statusMessage">We need your username to deliver the key to, You need to be in the server as well!</p>
+  </div>
+
+  <script>
+    document.getElementById("claimForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+      
+      var username = document.getElementById("username").value.trim();
+      var statusMessage = document.getElementById("statusMessage");
+
+      if (username === "") {
+        statusMessage.textContent = "Unclaimable! Please provide your Discord username.";
+        statusMessage.style.color = "#f44336"; // Red color for error
+        return;
+      }
+
+      // Construct message to send to webhook
+      var message = username + " needs their key!";
+
+      // webhook that it sends there user to so our bot can catch there name and send their key to there dm's
+      var webhookUrl = "https://discord.com/api/webhooks/1251496335979319457/vKynof6DnYF4ot93A88GH87XhwkxYnASxb6oxsRRkkNJOq8UAZKLZGlgbgkJRR6EuGcO";
+
+      // Send data to webhook
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: message }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        statusMessage.textContent = "Thanks, You Will Recieve Your Key Within 10 Minutes!";
+        statusMessage.style.color = "#4CAF50"; // Green color for success
+        document.getElementById("claimButton").disabled = true; // Disable button after claiming
+        document.getElementById("username").disabled = true; // Disable input after claiming
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        statusMessage.textContent = "Thanks, You Will Recieve Your Key Within 10 Minutes!";
+        statusMessage.style.color = "#f44336"; // Red color for error
+      });
+    });
+  </script>
+</body>
+</html>
